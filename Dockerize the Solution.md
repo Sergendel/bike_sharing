@@ -1,6 +1,4 @@
 
-
-
 1. Simple build with no volumes, image runs as it is      --------------------------------------
 
     docker build . -t bike_sharing:v1               # build image;  . for current folder,  -t for tag. v1 is the version tag. If omitted, Docker defaults to latest. 
