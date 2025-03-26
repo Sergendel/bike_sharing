@@ -72,7 +72,7 @@ docker run -it -v "$(pwd)/output":/app/output bike_sharing:v1
       docker images  | grep -i bike                   # -i: ignores the letter case.
       docker run -it bike_sharing:v1                  # OR
       
-      docker run -itd bike_sharing:v1                 #  In the command docker run -itd:
+      docker run --name bike_sharing_v1 -itd bike_sharing:v1                 #  In the command docker run -itd:
                                                       #    -i: Interactive mode, allowing input.
                                                       #    -t: Allocates a pseudo-terminal.
                                                       #    -d: Detached mode; container runs in the background.
@@ -82,7 +82,7 @@ docker run -it -v "$(pwd)/output":/app/output bike_sharing:v1
       docker ps -a                                    # containers, -a for all even the stopped  
   
       # run docker and bash
-      docker run -itd bike_sharing:v1 bash
+      docker run --name bike_sharing_v1 -it bike_sharing:v1 bash
       docker exec -it <container id> bash              # new interactive bash shell session inside the already-running Docker container.
       docker exec -it <container id> python main.py
   
@@ -95,16 +95,16 @@ docker run -it -v "$(pwd)/output":/app/output bike_sharing:v1
   2. data loaded from volume , adds ./data to dockerignore and mount data folder to app/data on container                         
      echo "./data" >> .dockerignore                            # Appends ./data to .dockerignore, creating the file if it doesn't exist.
      docker build . -t bike_sharing:v2
-     docker run -it -v ./data/:/app/data bike_sharing:v2       # would not work in gitbash
+     docker run --name bike_sharing_v2 -it -v ./data/:/app/data bike_sharing:v2       # would not work in gitbash
      # on windows you should run wth full path
-     docker run -it -v "C:\work\Mlops\Model Deployment\Exercise\Bike_Sharing\data":/app/data bike_sharing:v2 bash
+     docker run --name bike_sharing_v2 -it -v "C:\work\Mlops\Model Deployment\Exercise\Bike_Sharing\data":/app/data bike_sharing:v2 bash
      winpty docker run -it -v "$(pwd)/data":/app/data bike_sharing:v2 bash
   
   
   3. config file loaded from volume . now both folder data and file config are in ignore and should be mounted                        
      echo "config.py" > .dockerignore                  # Appends ./data to .dockerignore, creating the file if it doesn't exist.
      docker build . -t bike_sharing:v3
-     docker run -it -v "$(pwd)/data":/app/data  -v "$(pwd)/config.py":/app/config.py  bike_sharing:v3 bash   # now both data and config are mounted
+     docker run --name bike_sharing_v3 -it -v "$(pwd)/data":/app/data  -v "$(pwd)/config.py":/app/config.py  bike_sharing:v3 bash   # now both data and config are mounted
   
      docker run -it --mount type=bind,source="$(pwd)/config.py",target=/app/config.py bike_sharing:v3
   
@@ -127,3 +127,114 @@ docker run -it -v "$(pwd)/output":/app/output bike_sharing:v1
         docker pull 313733172/bike_sharing:v1
 
 
+## PostgreSQL Container Setup
+
+### Step 1: Docker Container with PostgreSQL
+
+Ensure your PostgreSQL Docker container (`bike_postgres`) is running:
+
+```bash
+docker run --name bike_postgres -e POSTGRES_PASSWORD=serg -p 5432:5432 -d postgres
+```
+
+| Parameter   | Meaning                                                          |
+|-------------|------------------------------------------------------------------|
+| `--name`    | Container name you assign (`bike_postgres`)                      |
+| `-e`        | Environment variable (`POSTGRES_PASSWORD`)                       |
+| `-p`        | Port mapping (`host_port:container_port`)                        |
+| `-d`        | Detached mode (runs container in background)                     |
+| `postgres`  | The official Docker Hub image for PostgreSQL                     |
+
+Make sure:
+- The PostgreSQL container (`bike_postgres`) is actively running.
+- PostgreSQL is accessible on port `5432`.
+
+### Step 2: Create the Database
+
+Before loading data, create the target database (`bike_sharing`):
+
+```bash
+docker exec -it bike_postgres psql -U postgres -c "CREATE DATABASE bike_sharing;"
+```
+OR
+1. Enter the Docker container
+```bash 
+docker exec -it bike_postgres bash
+```
+2. Run the PostgreSQL command inside the container
+```bash 
+psql -U postgres -c "CREATE DATABASE bike_sharing;"
+```
+
+|Command Part                             | Explanation                                                   |
+|-----------------------------------------|---------------------------------------------------------------|
+| `docker exec`                           | Run a command inside an already running Docker container.     |
+| `-it`                                   | Interactive (`-i`) mode with pseudo-terminal (`-t`).          |
+| `bike_postgres`                         | Name of the Docker container running PostgreSQL.              |
+| `psql`                                  | PostgreSQL command-line interface tool (CLI).                 |
+| `-U postgres`                           | Connect to PostgreSQL using the default user (`postgres`).    |
+| `-c "CREATE DATABASE bike_sharing;"`    | Execute SQL command to create the database `bike_sharing`.    |
+
+3. List all databases :
+
+ Enter the PostgreSQL container
+```bash 
+docker exec -it bike_postgres psql -U postgres
+```
+
+List all databases:
+```bash 
+\l
+```
+or explicitly:
+
+```bash 
+\list
+```
+
+
+### Step 3: Run Python Script Locally to Load Data into PostgreSQL (Recommended)
+
+Run the Python script `load_csv_to_db.py` directly on your local machine, where your CSV file and Python environment are already set up.
+
+Ensure your working directory structure is:
+
+```
+.
+├── data
+│   └── batch1.csv
+└── load_csv_to_db.py  # your script filename
+```
+
+Install required dependencies:
+```bash
+pip install pandas sqlalchemy psycopg2-binary
+```
+
+Execute the Python script:
+```bash
+python load_csv_to_db.py
+```
+
+### Step 4: Verify Data Import
+
+To confirm explicitly that your data is successfully loaded into the PostgreSQL database, follow these steps:
+
+**Step 1:** Enter the PostgreSQL command-line interface:
+
+```bash
+docker exec -it bike_postgres psql -U postgres -d bike_sharing
+```
+
+**Step 2:** Verify the content of your table (`bike_sharing_data`):
+
+```sql
+SELECT * FROM bike_sharing_data LIMIT 5;
+```
+
+This command displays the first 5 rows of your populated table, confirming successful data import.
+
+**Step 3:** Check the total number of rows imported:
+
+```sql
+SELECT COUNT(*) FROM bike_sharing_data;

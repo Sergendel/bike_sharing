@@ -1,4 +1,3 @@
-import pandas as pd
 from extract.extract_base import ExtractBase
 from pandas import read_csv
 

@@ -1,5 +1,13 @@
+DATA_SOURCE = 'postgres'  # options: 'csv' or 'postgres'
+
+#postgres
+DATABASE_URL = 'postgresql://postgres:serg@localhost:5432/bike_sharing'
+
+#csv
 #FILE_PATH = 'data/bike sharing train.csv'
 FILE_PATH = 'data/batch1.csv'
+
+# output folder
 OUTPUT_FOLDER= 'output'
 
 # Transform

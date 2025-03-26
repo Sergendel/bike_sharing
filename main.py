@@ -1,16 +1,14 @@
-import config
-from config import FILE_PATH
-from extract.extract_base import ExtractBase
-from extract.extract_file import ExtractFile
 from transform.transfrom_processing import TransformProcessing
 from transform.transform_model import TransformModel
 from utils.save_result_csv import save_result_csv
+from extract.data_loader import data_loader
+import config
 
 def main():
 
-    # Extract
-    extract : ExtractBase = ExtractFile(FILE_PATH)
-    dataset = extract.load_data()
+    #extract data
+    dataset = data_loader(config)
+
 
     # transform
     transform = TransformProcessing(config)
@@ -23,8 +21,8 @@ def main():
     # load
     print(result)
 
-    # Add result column  and save to output file
-    save_result_csv(dataset,result)
+    # Add result column  and save to output file or database
+    save_result_csv(dataset, result)
 
 
 
