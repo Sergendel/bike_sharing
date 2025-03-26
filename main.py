@@ -1,12 +1,13 @@
 from transform.transfrom_processing import TransformProcessing
 from transform.transform_model import TransformModel
-from utils.save_result_csv import save_result_csv
+#from utils.save_result_csv import save_result_csv
+from utils.save_predictions import save_predictions
 from extract.data_loader import data_loader
 import config
 
 def main():
 
-    #extract data
+    # extract data
     dataset = data_loader(config)
 
 
@@ -22,7 +23,8 @@ def main():
     print(result)
 
     # Add result column  and save to output file or database
-    save_result_csv(dataset, result)
+    #save_result_csv(dataset, result)
+    save_predictions(dataset, result)
 
 
 

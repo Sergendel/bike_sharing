@@ -2,7 +2,7 @@ DATA_SOURCE = 'postgres'  # options: 'csv' or 'postgres'
 
 #postgres
 DATABASE_URL = 'postgresql://postgres:serg@localhost:5432/bike_sharing'
-
+TABLE_NAME = "bike_sharing_data"
 #csv
 #FILE_PATH = 'data/bike sharing train.csv'
 FILE_PATH = 'data/batch1.csv'

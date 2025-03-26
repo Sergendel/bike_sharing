@@ -220,13 +220,13 @@ python load_csv_to_db.py
 
 To confirm explicitly that your data is successfully loaded into the PostgreSQL database, follow these steps:
 
-**Step 1:** Enter the PostgreSQL command-line interface:
+**Step 4.1:** Enter the PostgreSQL command-line interface:
 
 ```bash
 docker exec -it bike_postgres psql -U postgres -d bike_sharing
 ```
 
-**Step 2:** Verify the content of your table (`bike_sharing_data`):
+**Step 4.2:** Verify the content of your table (`bike_sharing_data`):
 
 ```sql
 SELECT * FROM bike_sharing_data LIMIT 5;
@@ -234,7 +234,19 @@ SELECT * FROM bike_sharing_data LIMIT 5;
 
 This command displays the first 5 rows of your populated table, confirming successful data import.
 
-**Step 3:** Check the total number of rows imported:
+**Step 4.3:** Check the total number of rows imported:
 
 ```sql
 SELECT COUNT(*) FROM bike_sharing_data;
+```
+
+
+### Step 5: Save resulting table to postgreSQL
+
+```bash
+docker exec -it bike_postgres psql -U postgres -d bike_sharing
+```
+
+```sql
+SELECT * FROM bike_sharing_data_predictions LIMIT 5;
+```
